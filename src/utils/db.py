@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from src.utils.settings import settings
 
 
-Base = declarative_base()
+Base = declarative_base()   #Connects models with actual db
 
 
 engine = create_engine(url=settings.DB_CONNECTION)
@@ -18,4 +18,3 @@ def get_db():
         yield session
     finally:
         session.close()
-        
