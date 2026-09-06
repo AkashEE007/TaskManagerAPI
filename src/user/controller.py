@@ -73,7 +73,7 @@ def is_authenticated(request: Request, db: Session):
         token = token.split(" ")[-1]
 
         data = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
-        print(data)
+
         user_id = data.get("_id")
         
         user = db.query(UserModel).filter(UserModel.id == user_id).first()
