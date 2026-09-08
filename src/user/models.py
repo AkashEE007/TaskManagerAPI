@@ -10,4 +10,6 @@ class UserModel(Base):
     hash_password = Column(String, nullable=False)
     email = Column(String)
     mobile = Column(String)
+    is_admin = Column(Boolean, default=False)
+    
 

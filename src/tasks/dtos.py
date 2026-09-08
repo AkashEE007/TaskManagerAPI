@@ -4,6 +4,7 @@ class TaskSchema(BaseModel):
     title: str
     description: str 
     is_completed: bool = False
+    is_admin: bool = False
 
 
 class TaskResponseSchema(BaseModel):

@@ -4,7 +4,7 @@ from src.tasks.dtos import TaskSchema, TaskResponseSchema
 from src.utils.db import get_db
 from typing import List
 from sqlalchemy.orm import Session
-from src.utils.helpers import is_authenticated
+from src.utils.helpers import is_authenticated, require_admin
 from src.user.models import UserModel
 
 
@@ -17,7 +17,7 @@ def create_task(body:TaskSchema, db: Session=Depends(get_db), user: UserModel=De
 
 
 @task_routes.get("/get_all_tasks", response_model=List[TaskResponseSchema], status_code=status.HTTP_200_OK)
-def get_all_tasks(db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
+def get_all_tasks(db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
     return controller.get_tasks(db)
 
 

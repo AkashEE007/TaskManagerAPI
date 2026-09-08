@@ -26,3 +26,11 @@ def is_authenticated(request: Request, db: Session = Depends(get_db)):
     except InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are unauthorized!")
 
+
+def require_admin(user: UserModel = Depends(is_authenticated)):
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access is required for this action"
+        )
+    return user
