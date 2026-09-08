@@ -13,7 +13,7 @@ task_routes = APIRouter(prefix="/tasks")
 
 @task_routes.post("/create_task", response_model=TaskResponseSchema, status_code=status.HTTP_201_CREATED)
 def create_task(body:TaskSchema, db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
-    return controller.create_task(body, db)
+    return controller.create_task(body, db, user)
 
 
 @task_routes.get("/get_all_tasks", response_model=List[TaskResponseSchema], status_code=status.HTTP_200_OK)
@@ -35,3 +35,7 @@ def update_task(body: TaskSchema, task_id: int, db: Session=Depends(get_db), use
 def delete_task(task_id: int, db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
     return controller.delete_task(task_id, db)
 
+
+@task_routes.delete("/delete_all_tasks", status_code=status.HTTP_204_NO_CONTENT)
+def delete_all_tasks(db: Session=Depends(get_db)):
+    return controller.delete_all_task(db)
