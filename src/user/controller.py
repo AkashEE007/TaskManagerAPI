@@ -38,7 +38,8 @@ def register(body: UserSchema, db: Session):
         name = body.name,
         username = body.username,
         hash_password = hash_password,
-        email = body.email
+        email = body.email,
+        is_admin = body.is_admin
     )
 
     db.add(new_user)
