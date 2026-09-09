@@ -35,7 +35,7 @@ def get_one_task(task_id:int, db: Session):
     return task
 
 
-def update_task(body: TaskSchema, task_id: int, db: Session):
+def update_task(body: TaskSchema, task_id: int, db: Session, user: UserModel):
     task = db.query(TaskModel).get(task_id)
     if not task:
         raise HTTPException(404, detail="Task Id is incorrect")
@@ -43,6 +43,9 @@ def update_task(body: TaskSchema, task_id: int, db: Session):
     # task.title = body.title
     # task.description = body.description
     # task.is_completed = body.is_completed
+
+    if task.user_id != user.id:
+        raise HTTPException(403, detail="You are not authorized to update this task")
 
     for key, value in body.model_dump().items():
         setattr(task, key, value)
@@ -54,11 +57,14 @@ def update_task(body: TaskSchema, task_id: int, db: Session):
     return task
 
 
-def delete_task(task_id: int, db: Session):
+def delete_task(task_id: int, db: Session, user: UserModel):
     task = db.query(TaskModel).get(task_id)
 
     if not task:
         raise HTTPException(404, detail="Task Id is incorrect")
+
+    if task.user_id != user.id:
+        raise HTTPException(403, detail="You are not authorized to delete this task")
 
     db.delete(task)
     db.commit()
@@ -66,6 +72,6 @@ def delete_task(task_id: int, db: Session):
     return None
 
 
-def delete_all_task(db: Session):
-    db.query(TaskModel).delete()
+def delete_all_task(db: Session, user: UserModel):
+    db.query(TaskModel).filter(TaskModel.user_id == user.id).delete()
     db.commit()
