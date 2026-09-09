@@ -66,6 +66,11 @@ def login_user(body: LoginSchema, db: Session):
     }
 
 
+def get_all_users(db: Session):
+    users = db.query(UserModel).all()
+    return users
+
+
 def delete_all_users(db: Session):
     db.query(UserModel).delete()
     db.commit()

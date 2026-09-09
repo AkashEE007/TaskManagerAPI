@@ -21,6 +21,11 @@ def get_all_tasks(db: Session=Depends(get_db), user: UserModel=Depends(require_a
     return controller.get_tasks(db)
 
 
+@task_routes.get("/get_user_tasks", response_model=list[TaskResponseSchema], status_code=status.HTTP_200_OK)
+def get_user_tasks(db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
+    return controller.get_task_by_user(db, user)
+
+
 @task_routes.get("/get_one_task/{task_id}", response_model=TaskResponseSchema, status_code=status.HTTP_200_OK)
 def get_one_task(task_id: int, db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
     return controller.get_one_task(task_id, db)
