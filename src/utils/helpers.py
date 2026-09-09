@@ -5,13 +5,18 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from src.user.models import UserModel
 from src.utils.db import get_db
+from src.utils.security import security
+from fastapi.security import HTTPAuthorizationCredentials
 
-def is_authenticated(request: Request, db: Session = Depends(get_db)):
+def is_authenticated(
+        credentials: HTTPAuthorizationCredentials = Depends(security), 
+        db: Session = Depends(get_db)):
     try:
-        token = request.headers.get("authorization")
+        # token = request.headers.get("authorization")
+        token = credentials.credentials
         if not token:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are unauthorized!")
-        token = token.split(" ")[-1]
+        # token = token.split(" ")[-1]
 
         data = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
 
