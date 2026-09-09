@@ -24,28 +24,33 @@ def register(body: UserSchema, db: Session):
         1. Username Validation
         2. Email Validation
     """
-    is_user = db.query(UserModel).filter(UserModel.username == body.username).first()
-    if is_user:
-        raise HTTPException(400, detail="Username already exists!")
+    try:
+        is_user = db.query(UserModel).filter(UserModel.username == body.username).first()
+        if is_user:
+            raise HTTPException(400, detail="Username already exists!")
 
-    is_user = db.query(UserModel).filter(UserModel.email == body.email).first()
-    if is_user:
-        raise HTTPException(400, detail="Email already exists!") 
+        is_user = db.query(UserModel).filter(UserModel.email == body.email).first()
+        if is_user:
+            raise HTTPException(400, detail="Email already exists!") 
 
-    hash_password = get_password_hash(body.password)
+        hash_password = get_password_hash(body.password)
 
-    new_user = UserModel(
-        name = body.name,
-        username = body.username,
-        hash_password = hash_password,
-        email = body.email
-    )
+        new_user = UserModel(
+            name = body.name,
+            username = body.username,
+            hash_password = hash_password,
+            email = body.email
+        )
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    return new_user
+        return new_user
+
+    except Exception:
+        db.rollback()
+        raise
 
 
 def login_user(body: LoginSchema, db: Session):
@@ -71,21 +76,31 @@ def get_all_users(db: Session):
 
 
 def delete_all_users(db: Session):
-    db.query(UserModel).delete()
-    db.commit()
+    try:
+        db.query(UserModel).delete()
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
 
 def update_admin(body: AdminUpdateSchema, user_id: int, db: Session):
-    user = db.query(UserModel).get(user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
+    try:
+        user = db.query(UserModel).get(user_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
-    user.is_admin = body.is_admin
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+        user.is_admin = body.is_admin
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-    return user
+        return user
+
+    except Exception:
+        db.rollback()
+        raise
 
 
     
