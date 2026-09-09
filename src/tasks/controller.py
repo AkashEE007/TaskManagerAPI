@@ -27,10 +27,14 @@ def get_task_by_user(db: Session, user: UserModel):
     return tasks
 
 
-def get_one_task(task_id:int, db: Session):
-    task = db.query(TaskModel).get(task_id)
+def get_one_task(task_id:int, db: Session, user=UserModel):
+    task = db.query(TaskModel).filter(TaskModel.id == task_id).first()
     if not task:
         raise HTTPException(404, detail="Task Id is incorrect")
+
+
+    if task.user_id != user.id:
+        raise HTTPException(403, detail="You are not authorized to view this task")
 
     return task
 
