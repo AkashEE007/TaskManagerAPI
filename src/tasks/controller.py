@@ -22,6 +22,11 @@ def get_tasks(db: Session):
     return tasks
 
 
+def get_task_by_user(db: Session, user: UserModel):
+    tasks = db.query(TaskModel).filter(TaskModel.user_id == user.id).all()
+    return tasks
+
+
 def get_one_task(task_id:int, db: Session):
     task = db.query(TaskModel).get(task_id)
     if not task:

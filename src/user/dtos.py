@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class UserSchema(BaseModel):
@@ -10,10 +10,13 @@ class UserSchema(BaseModel):
 
 
 class UserResponseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     name: str
     username: str
     email: str
     id: int
+    is_admin: bool
 
 
 class LoginSchema(BaseModel):

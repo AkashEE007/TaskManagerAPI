@@ -3,6 +3,9 @@ from src.user.dtos import UserSchema, UserResponseSchema, LoginSchema
 from src.utils.db import get_db
 from sqlalchemy.orm import Session
 from src.user import controller
+from src.utils.helpers import require_admin
+from src.user.models import UserModel
+from typing import List
 
 user_routes = APIRouter(prefix="/user")
 
@@ -25,3 +28,8 @@ def is_auth(request:Request, db: Session=Depends(get_db)):
 @user_routes.delete("/delete_all_users", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all(db: Session=Depends(get_db)):
     return controller.delete_all_users(db)
+
+
+@user_routes.get("/get_all_users", response_model= list[UserResponseSchema],status_code=status.HTTP_200_OK)
+def get_all_users(db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
+    return controller.get_all_users(db)
