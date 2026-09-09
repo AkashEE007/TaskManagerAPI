@@ -72,6 +72,6 @@ def delete_task(task_id: int, db: Session, user: UserModel):
     return None
 
 
-def delete_all_task(db: Session, user: UserModel):
-    db.query(TaskModel).filter(TaskModel.user_id == user.id).delete()
+def delete_all_task(db: Session):
+    db.query(TaskModel).delete()
     db.commit()
