@@ -6,7 +6,6 @@ class UserSchema(BaseModel):
     username: str
     password: str
     email: str
-    is_admin: bool = False
 
 
 class UserResponseSchema(BaseModel):
@@ -22,4 +21,7 @@ class UserResponseSchema(BaseModel):
 class LoginSchema(BaseModel):
     username: str
     password: str
-    
+
+
+class AdminUpdateSchema(BaseModel):
+    is_admin: bool

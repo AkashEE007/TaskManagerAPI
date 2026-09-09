@@ -1,4 +1,4 @@
-from src.user.dtos import UserSchema, LoginSchema
+from src.user.dtos import AdminUpdateSchema, UserResponseSchema, UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from src.user.models import UserModel
 from fastapi import HTTPException, status, Request
@@ -38,8 +38,7 @@ def register(body: UserSchema, db: Session):
         name = body.name,
         username = body.username,
         hash_password = hash_password,
-        email = body.email,
-        is_admin = body.is_admin
+        email = body.email
     )
 
     db.add(new_user)
@@ -74,3 +73,19 @@ def get_all_users(db: Session):
 def delete_all_users(db: Session):
     db.query(UserModel).delete()
     db.commit()
+
+
+def update_admin(body: AdminUpdateSchema, user_id: int, db: Session):
+    user = db.query(UserModel).get(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
+
+    user.is_admin = body.is_admin
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+    
