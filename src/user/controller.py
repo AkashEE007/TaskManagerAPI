@@ -120,3 +120,27 @@ def update_password(user: UserModel, new_password: str, db: Session):
         raise
 
 
+def update_email(user: UserModel, new_email: str, db: Session):
+    try:
+        email_exist = db.query(UserModel).filter(UserModel.email == new_email).first()
+        if user.email == new_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Please enter a new email"
+            )
+        if email_exist:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already exists"
+            )
+        
+        user.email = new_email
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        return user
+
+    except Exception:
+        db.rollback()
+        raise

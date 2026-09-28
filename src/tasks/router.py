@@ -7,7 +7,7 @@ from src.user.models import UserModel
 from src.utils.db import get_db
 from src.utils.helpers import is_authenticated, require_admin
 
-task_routes = APIRouter(prefix="/tasks")
+task_routes = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 @task_routes.post("/create_task", response_model=TaskResponseSchema, status_code=status.HTTP_201_CREATED)

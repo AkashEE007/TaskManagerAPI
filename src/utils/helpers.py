@@ -87,7 +87,7 @@ def email_validation(email_id):
     if not (3 <= len(local_part) <= 55):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Number characters before @ should be between 3 and 55"
+            detail="Number of characters before @ should be between 3 and 55"
         )
 
     if not (5 <= len(domain_part) <= 255):
