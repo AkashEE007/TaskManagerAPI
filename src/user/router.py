@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from src.user import controller
 from src.user.dtos import (
     AdminUpdateSchema,
+    EmailUpdateSchema,
     LoginSchema,
     PasswordUpdateSchema,
     UserResponseSchema,
@@ -13,7 +14,7 @@ from src.user.models import UserModel
 from src.utils.db import get_db
 from src.utils.helpers import is_authenticated, require_admin
 
-user_routes = APIRouter(prefix="/user")
+user_routes = APIRouter(prefix="/user", tags=["Users"])
 
 
 @user_routes.post("/register", response_model=UserResponseSchema, status_code=status.HTTP_201_CREATED)
@@ -50,3 +51,7 @@ def make_admin(body: AdminUpdateSchema, user_id: int, db: Session=Depends(get_db
 def update_password(body: PasswordUpdateSchema, user: UserModel=Depends(is_authenticated), db: Session=Depends(get_db)):
     return controller.update_password(user, body.new_password, db)
 
+
+@user_routes.put("/update_email", status_code=status.HTTP_200_OK)
+def update_email(body: EmailUpdateSchema, user: UserModel=Depends(is_authenticated), db: Session=Depends(get_db)):
+    return controller.update_email(user, body.new_email, db)

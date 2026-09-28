@@ -11,6 +11,12 @@ PasswordStrength = Annotated[str, Field(
     description="Enter a strong password"
     )]
 
+EmailCheck = Annotated[str, Field(
+        ...,
+        min_length=5,
+        max_length=325,
+        description="Enter your email"
+    )]
 
 class UserSchema(BaseModel):
     name: str = Field(
@@ -32,12 +38,7 @@ class UserSchema(BaseModel):
         return check_password_strength(pwd)
     
     password: PasswordStrength
-    email: str = Field(
-        ...,
-        min_length=5,
-        max_length=325,
-        description="Enter your email"
-    )
+    email: EmailCheck
     @field_validator("email")
     @classmethod
     def email_validator(cls, email: str):
@@ -70,4 +71,12 @@ class PasswordUpdateSchema(BaseModel):
     @classmethod
     def password_strength(cls, pwd: str):
         return check_password_strength(pwd)
+
+
+class EmailUpdateSchema(BaseModel):
+    new_email: EmailCheck
+    @field_validator("new_email")
+    @classmethod
+    def email_validator(cls, email: str):
+        return email_validation(email)
     
