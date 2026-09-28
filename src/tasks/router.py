@@ -16,13 +16,13 @@ def create_task(body:TaskSchema, db: Session=Depends(get_db), user: UserModel=De
 
 
 @task_routes.get("/get_all_tasks", response_model=list[TaskResponseSchema], status_code=status.HTTP_200_OK)
-def get_all_tasks(db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
-    return controller.get_tasks(db)
+def get_all_tasks(skip: int=0, limit: int=20, db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
+    return controller.get_tasks(db, skip=skip, limit=limit)
 
 
 @task_routes.get("/get_user_tasks", response_model=list[TaskResponseSchema], status_code=status.HTTP_200_OK)
-def get_user_tasks(db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
-    return controller.get_task_by_user(db, user)
+def get_user_tasks(skip: int=0, limit: int=20, db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
+    return controller.get_task_by_user(db, user, skip=skip, limit=limit)
 
 
 @task_routes.get("/get_one_task/{task_id}", response_model=TaskResponseSchema, status_code=status.HTTP_200_OK)
