@@ -1,4 +1,15 @@
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Annotated
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from src.utils.helpers import check_password_strength
+
+PasswordStrength = Annotated[str, Field(
+    ..., 
+    min_length=5,
+    max_length=30,
+    description="Enter a strong password"
+    )]
 
 
 class UserSchema(BaseModel):
@@ -14,12 +25,13 @@ class UserSchema(BaseModel):
         max_length=10,
         description="Username should be unique"
     )
-    password: str = Field(
-        ...,
-        min_length=5,
-        max_length=30,
-        description="Enter a strong password"
-    )
+
+    @field_validator("password")
+    @classmethod
+    def password_strength(cls, pwd: str):
+        return check_password_strength(pwd)
+    
+    password: PasswordStrength
     email: str = Field(
         ...,
         min_length=5,
@@ -48,4 +60,10 @@ class AdminUpdateSchema(BaseModel):
 
 
 class PasswordUpdateSchema(BaseModel):
-    new_password: str
+    new_password: PasswordStrength
+
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, pwd: str):
+        return check_password_strength(pwd)
+    
