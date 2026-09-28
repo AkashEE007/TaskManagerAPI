@@ -1,11 +1,31 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserSchema(BaseModel):
-    name: str
-    username: str
-    password: str
-    email: str
+    name: str = Field(
+        ...,
+        min_length=3,
+        max_length=10,
+        description="Name of user"
+    )
+    username: str = Field(
+        ...,
+        min_length=3,
+        max_length=10,
+        description="Username should be unique"
+    )
+    password: str = Field(
+        ...,
+        min_length=5,
+        max_length=30,
+        description="Enter a strong password"
+    )
+    email: str = Field(
+        ...,
+        min_length=5,
+        max_length=50,
+        description="Enter your email"
+    )
 
 
 class UserResponseSchema(BaseModel):
