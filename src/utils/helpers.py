@@ -103,3 +103,19 @@ def email_validation(email_id):
         )
 
     return email_id
+
+
+def pagination_params(skip: int = 0, limit: int = 20):
+    if skip < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Skip must be greater than or equal to 0"
+        )
+
+    if limit <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit must be greater than 0"
+        )
+
+    return {"skip": skip, "limit": limit}

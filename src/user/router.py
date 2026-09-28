@@ -39,8 +39,8 @@ def delete_all(body: DeleteAllConfirmation, db: Session=Depends(get_db), user: U
 
 
 @user_routes.get("/get_all_users", response_model= list[UserResponseSchema],status_code=status.HTTP_200_OK)
-def get_all_users(db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
-    return controller.get_all_users(db)
+def get_all_users(skip: int=0, limit: int=20, db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
+    return controller.get_all_users(db, skip, limit)
 
 
 @user_routes.put("/update_user/{user_id}/make_admin", response_model=UserResponseSchema, status_code=status.HTTP_200_OK)

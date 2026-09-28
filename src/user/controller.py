@@ -5,8 +5,14 @@ from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 
-from src.user.dtos import AdminUpdateSchema, LoginSchema, UserSchema, DeleteAllConfirmation
+from src.user.dtos import (
+    AdminUpdateSchema,
+    DeleteAllConfirmation,
+    LoginSchema,
+    UserSchema,
+)
 from src.user.models import UserModel
+from src.utils.helpers import pagination_params
 from src.utils.logger import logger
 from src.utils.settings import settings
 
@@ -84,9 +90,20 @@ def login_user(body: LoginSchema, db: Session):
     }
 
 
-def get_all_users(db: Session):
-    logger.debug("Fetching all users from DB")
-    users = db.query(UserModel).all()
+def get_all_users(db: Session, skip: int=0, limit: int=20):
+    logger.debug("Fetching users with pagination - skip=%s, limit=%s", skip, limit)
+
+    page_imits = pagination_params(skip, limit)
+    skip = page_imits["skip"]
+    limit = min(page_imits["limit"], 50)
+
+    users = (
+        db.query(UserModel)
+        .order_by(UserModel.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     logger.info("Retrieved %d users", len(users))
     return users
 

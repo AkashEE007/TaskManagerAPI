@@ -1,9 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from src.tasks.dtos import TaskSchema, DeleteTaskConfirmation
+from src.tasks.dtos import DeleteTaskConfirmation, TaskSchema
 from src.tasks.models import TaskModel
 from src.user.models import UserModel
+from src.utils.helpers import pagination_params
 from src.utils.logger import logger
 
 
@@ -28,17 +29,39 @@ def create_task(body: TaskSchema, db: Session, user: UserModel):
         raise
 
 
-def get_tasks(db: Session):
-    logger.debug("Fetching all tasks from DB")
-    tasks = db.query(TaskModel).all()
+def get_tasks(db: Session, skip: int=0, limit: int=20):
+    logger.debug("Fetching tasks from DB with pagination - skip=%s, limit=%s", skip, limit)
+
+    page_imits = pagination_params(skip, limit)
+    skip = page_imits["skip"]
+    limit = min(page_imits["limit"], 50)
+    
+    tasks = (db.query(TaskModel)
+        .order_by(TaskModel.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
     logger.info("Retrieved %d tasks", len(tasks))
     return tasks
 
 
-def get_task_by_user(db: Session, user: UserModel):
-    logger.debug("Fetching tasks for user_id=%s", user.id)
-    tasks = db.query(TaskModel).filter(TaskModel.user_id == user.id).all()
+def get_task_by_user(db: Session, user: UserModel, skip: int=0, limit: int=20):
+    logger.debug("Fetching tasks from DB with pagination - skip=%s, limit=%s", skip, limit)
+
+    page_imits = pagination_params(skip, limit)
+    skip = page_imits["skip"]
+    limit = min(page_imits["limit"], 50)
+
+    tasks = (
+        db.query(TaskModel)
+        .filter(TaskModel.user_id == user.id)
+        .order_by(TaskModel.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
     logger.info("User %s has %d tasks", user.id, len(tasks))
     return tasks
@@ -94,7 +117,7 @@ def update_task(body: TaskSchema, task_id: int, db: Session, user: UserModel):
         logger.info("Task updated – id=%s", task.id)
         return task
 
-    except Exception as exc:
+    except Exception:
         logger.exception("Error updating task %s for user %s", task_id, user.id)
         db.rollback()
         raise
@@ -122,7 +145,7 @@ def delete_task(task_id: int, db: Session, user: UserModel):
         logger.info("Task deleted – id=%s", task_id)
 
 
-    except Exception as exc:
+    except Exception:
         logger.exception("Error deleting task %s for user %s", task_id, user.id)
         db.rollback()
         raise
@@ -138,7 +161,7 @@ def delete_all_task(db: Session, body: DeleteTaskConfirmation):
         db.commit()
         logger.info("All tasks removed successfully")
         
-    except Exception as exc:
+    except Exception:
         logger.exception("Failed to delete all tasks")
         db.rollback()
         raise
