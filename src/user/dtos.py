@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.utils.helpers import check_password_strength
+from src.utils.helpers import check_password_strength, email_validation
 
 PasswordStrength = Annotated[str, Field(
     ..., 
@@ -35,9 +35,13 @@ class UserSchema(BaseModel):
     email: str = Field(
         ...,
         min_length=5,
-        max_length=50,
+        max_length=325,
         description="Enter your email"
     )
+    @field_validator("email")
+    @classmethod
+    def email_validator(cls, email: str):
+        return email_validation(email)
 
 
 class UserResponseSchema(BaseModel):
