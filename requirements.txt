@@ -1,7 +1,11 @@
-fastapi
+fastapi[standard]
 uvicorn
 sqlalchemy
 pydantic
 pydantic-settings
 PyJWT
 pwdlib
+pytest
+httpx
+psycopg2-binary
+pwdlib[argon2]

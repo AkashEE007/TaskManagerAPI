@@ -25,3 +25,7 @@ class LoginSchema(BaseModel):
 
 class AdminUpdateSchema(BaseModel):
     is_admin: bool
+
+
+class PasswordUpdateSchema(BaseModel):
+    new_password: str

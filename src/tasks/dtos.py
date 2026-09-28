@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class TaskSchema(BaseModel):
-    title: str
-    description: str 
+    title: str = Field(..., min_length=3, max_length=25)
+    description: str = Field(..., min_length=5, max_length=100)
     is_completed: bool = False
 
 
