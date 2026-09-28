@@ -43,3 +43,4 @@ def delete_task(task_id: int, db: Session=Depends(get_db), user: UserModel=Depen
 @task_routes.delete("/delete_all_tasks", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all_tasks(db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
     return controller.delete_all_task(db)
+

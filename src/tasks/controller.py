@@ -7,19 +7,19 @@ from src.user.models import UserModel
 
 
 def create_task(body: TaskSchema, db: Session, user: UserModel):
-    data = body.model_dump()
-    new_task = TaskModel(title = data["title"],
-                         description = data["description"],
-                         is_completed = data["is_completed"],
-                         user_id = user.id)
     try:
+        data = body.model_dump()
+        new_task = TaskModel(title = data["title"],
+                            description = data["description"],
+                            is_completed = data["is_completed"],
+                            user_id = user.id)
         db.add(new_task)
         db.commit()
         db.refresh(new_task)
 
         return new_task
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise
 
@@ -82,12 +82,12 @@ def delete_task(task_id: int, db: Session, user: UserModel):
 
         if task.user_id != user.id:
             raise HTTPException(403, detail="You are not authorized to delete this task")
-        
 
         db.delete(task)
         db.commit()
 
-    except Exception as e:
+
+    except Exception:
         db.rollback()
         raise
 
@@ -99,3 +99,5 @@ def delete_all_task(db: Session):
     except Exception:
         db.rollback()
         raise
+
+    

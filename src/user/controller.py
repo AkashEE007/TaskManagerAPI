@@ -115,8 +115,8 @@ def update_password(user: UserModel, new_password: str, db: Session):
         db.commit()
         db.refresh(user)
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise
 
-    
+
