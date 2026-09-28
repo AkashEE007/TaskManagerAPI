@@ -8,6 +8,7 @@ from src.user.models import UserModel
 from src.utils.db import get_db
 from src.utils.security import security
 from src.utils.settings import settings
+import re
 
 
 def is_authenticated(
@@ -41,3 +42,19 @@ def require_admin(user: UserModel = Depends(is_authenticated)):
             detail="Admin access is required for this action"
         )
     return user
+
+
+def check_password_strength(pwd: str) -> str:
+    """
+        Validate that a password contains at least:
+        • one uppercase letter
+        • one digit
+        • one special character
+    """
+    if not re.search(r"[A-Z]", pwd):
+        raise ValueError("Password must contain an uppercase character")
+    if not re.search(r"[0-9]", pwd):
+        raise ValueError("Password must contain an Integer")
+    if not re.search(r"[^A-Za-z0-9]", pwd):
+        raise ValueError("Password must contain a special character")
+    return pwd
