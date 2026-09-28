@@ -1,13 +1,13 @@
-from src.user.dtos import AdminUpdateSchema, UserResponseSchema, UserSchema, LoginSchema
-from sqlalchemy.orm import Session
-from src.user.models import UserModel
-from fastapi import HTTPException, status, Request
-from pwdlib import PasswordHash
-from src.utils.settings import settings
-from datetime import datetime, timedelta
-import jwt
-from jwt.exceptions import InvalidTokenError
+from datetime import datetime, timedelta, timezone
 
+import jwt
+from fastapi import HTTPException, status
+from pwdlib import PasswordHash
+from sqlalchemy.orm import Session
+
+from src.user.dtos import AdminUpdateSchema, LoginSchema, UserSchema
+from src.user.models import UserModel
+from src.utils.settings import settings
 
 password_hash = PasswordHash.recommended()
 
@@ -61,7 +61,7 @@ def login_user(body: LoginSchema, db: Session):
     if not verify_password(body.password, is_user.hash_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong Password!")
 
-    exp_time = datetime.now() + timedelta(minutes=settings.EXP_TIME)
+    exp_time = datetime.now(tz=timezone.utc) + timedelta(minutes=settings.EXP_TIME)
 
     token = jwt.encode({"_id": is_user.id, "exp":exp_time.timestamp()}, settings.SECRET_KEY, settings.ALGORITHM)
 
@@ -102,5 +102,16 @@ def update_admin(body: AdminUpdateSchema, user_id: int, db: Session):
         db.rollback()
         raise
 
+
+def update_password(user: UserModel, new_password: str, db: Session):
+    try:
+        user.hash_password = get_password_hash(new_password)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    except Exception as e:
+        db.rollback()
+        raise
 
     

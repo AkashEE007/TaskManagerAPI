@@ -1,4 +1,3 @@
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import Depends
+from fastapi.security import HTTPBearer
 
 security = HTTPBearer()

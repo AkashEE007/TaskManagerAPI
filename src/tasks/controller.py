@@ -1,23 +1,25 @@
-from src.tasks.dtos import TaskSchema
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+
+from src.tasks.dtos import TaskSchema
 from src.tasks.models import TaskModel
-from fastapi import HTTPException, status
 from src.user.models import UserModel
 
+
 def create_task(body: TaskSchema, db: Session, user: UserModel):
+    data = body.model_dump()
+    new_task = TaskModel(title = data["title"],
+                         description = data["description"],
+                         is_completed = data["is_completed"],
+                         user_id = user.id)
     try:
-        data = body.model_dump()
-        new_task = TaskModel(title = data["title"],
-                            description = data["description"],
-                            is_completed = data["is_completed"],
-                            user_id = user.id)
         db.add(new_task)
         db.commit()
         db.refresh(new_task)
 
         return new_task
 
-    except Exception:
+    except Exception as e:
         db.rollback()
         raise
 
@@ -80,13 +82,12 @@ def delete_task(task_id: int, db: Session, user: UserModel):
 
         if task.user_id != user.id:
             raise HTTPException(403, detail="You are not authorized to delete this task")
+        
 
         db.delete(task)
         db.commit()
 
-        return None
-
-    except Exception:
+    except Exception as e:
         db.rollback()
         raise
 
