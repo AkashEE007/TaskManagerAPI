@@ -33,13 +33,15 @@ def register(body: UserSchema, db: Session):
     """
     logger.info("Register request – username=%s, email=%s", body.username, body.email)
     try:
-        is_user = db.query(UserModel).filter(UserModel.username == body.username).first()
+        is_user = (db.query(UserModel)
+                   .filter((UserModel.username == body.username) | (UserModel.email == body.email))
+                   .first()
+        )
         if is_user:
-            raise HTTPException(400, detail="Username already exists!")
-
-        is_user = db.query(UserModel).filter(UserModel.email == body.email).first()
-        if is_user:
-            raise HTTPException(400, detail="Email already exists!") 
+            if is_user.username == body.username:
+                raise HTTPException(400, detail="Username already exists!")
+            if is_user.email == body.email:
+                raise HTTPException(400, detail="Email already exists!")
 
         hash_password = get_password_hash(body.password)
 
@@ -65,7 +67,7 @@ def register(body: UserSchema, db: Session):
 
 def login_user(body: LoginSchema, db: Session):
     logger.info("Login attempt – username=%s", body.username)
-    is_user = db.query(UserModel).filter(UserModel.username == body.username).first()
+    is_user = db.query(UserModel).filter(UserModel.username == body.username).one_or_none()
 
     if not is_user:
         logger.warning("Login failed – unknown username: %s", body.username)
