@@ -1,12 +1,14 @@
-from fastapi import Request, HTTPException, status, Depends
-from src.utils.settings import settings
-from sqlalchemy.orm import Session
 import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 from jwt.exceptions import InvalidTokenError
+from sqlalchemy.orm import Session
+
 from src.user.models import UserModel
 from src.utils.db import get_db
 from src.utils.security import security
-from fastapi.security import HTTPAuthorizationCredentials
+from src.utils.settings import settings
+
 
 def is_authenticated(
         credentials: HTTPAuthorizationCredentials = Depends(security), 

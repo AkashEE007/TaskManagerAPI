@@ -105,6 +105,11 @@ def update_admin(body: AdminUpdateSchema, user_id: int, db: Session):
 
 def update_password(user: UserModel, new_password: str, db: Session):
     try:
+        if verify_password(new_password, user.hash_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="New Password must be different from the current password."
+            )
         user.hash_password = get_password_hash(new_password)
         db.add(user)
         db.commit()
