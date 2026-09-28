@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from src.user import controller
 from src.user.dtos import (
     AdminUpdateSchema,
+    DeleteAllConfirmation,
     EmailUpdateSchema,
     LoginSchema,
     PasswordUpdateSchema,
@@ -32,9 +33,9 @@ def is_auth(user: UserModel=Depends(is_authenticated), db: Session=Depends(get_d
     return user
 
 
-@user_routes.delete("/delete_all_users", status_code=status.HTTP_204_NO_CONTENT)
-def delete_all(db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
-    return controller.delete_all_users(db)
+@user_routes.post("/admin/users/delete-all", status_code=status.HTTP_204_NO_CONTENT)
+def delete_all(body: DeleteAllConfirmation, db: Session=Depends(get_db), user: UserModel=Depends(require_admin)):
+    return controller.delete_all_users(db, body)
 
 
 @user_routes.get("/get_all_users", response_model= list[UserResponseSchema],status_code=status.HTTP_200_OK)

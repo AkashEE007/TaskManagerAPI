@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 
-from src.user.dtos import AdminUpdateSchema, LoginSchema, UserSchema
+from src.user.dtos import AdminUpdateSchema, LoginSchema, UserSchema, DeleteAllConfirmation
 from src.user.models import UserModel
 from src.utils.logger import logger
 from src.utils.settings import settings
@@ -91,9 +91,12 @@ def get_all_users(db: Session):
     return users
 
 
-def delete_all_users(db: Session):
+def delete_all_users(db: Session, body: DeleteAllConfirmation):
     logger.warning("Deleting all users – admin action")
     try:
+        if not body.confirm:
+            raise HTTPException(status_code=400, detail="Confirmation required")
+        
         db.query(UserModel).delete()
         db.commit()
         logger.info("All users removed successfully")

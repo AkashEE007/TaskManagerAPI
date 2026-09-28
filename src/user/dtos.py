@@ -79,4 +79,9 @@ class EmailUpdateSchema(BaseModel):
     @classmethod
     def email_validator(cls, email: str):
         return email_validation(email)
+
+
+class DeleteAllConfirmation(BaseModel):
+    confirm: bool
+    reason: str | None = None
     
