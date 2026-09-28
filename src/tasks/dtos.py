@@ -23,3 +23,7 @@ class TaskResponseSchema(BaseModel):
     is_completed: bool
     user_id: int | None = 0
 
+
+class DeleteTaskConfirmation(BaseModel):
+    confirm: bool
+    reason: str | None = None

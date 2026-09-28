@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from src.tasks.dtos import TaskSchema
+from src.tasks.dtos import TaskSchema, DeleteTaskConfirmation
 from src.tasks.models import TaskModel
 from src.user.models import UserModel
 from src.utils.logger import logger
@@ -128,9 +128,12 @@ def delete_task(task_id: int, db: Session, user: UserModel):
         raise
 
 
-def delete_all_task(db: Session):
+def delete_all_task(db: Session, body: DeleteTaskConfirmation):
     logger.warning("Deleting all tasks – admin action")
     try:
+        if not body.confirm:
+            raise HTTPException(status_code=400, detail="Confirmation required")
+        
         db.query(TaskModel).delete()
         db.commit()
         logger.info("All tasks removed successfully")
@@ -140,4 +143,3 @@ def delete_all_task(db: Session):
         db.rollback()
         raise
 
-    
