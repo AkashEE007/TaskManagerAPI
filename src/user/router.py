@@ -50,4 +50,3 @@ def make_admin(body: AdminUpdateSchema, user_id: int, db: Session=Depends(get_db
 def update_password(body: PasswordUpdateSchema, user: UserModel=Depends(is_authenticated), db: Session=Depends(get_db)):
     return controller.update_password(user, body.new_password, db)
 
-
