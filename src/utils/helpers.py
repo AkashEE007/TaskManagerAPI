@@ -56,6 +56,10 @@ def check_password_strength(pwd: str) -> str:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Password must contain an uppercase character")
+    if not re.search(r"[a-z]", pwd):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Password must contain a lowercase character")
     if not re.search(r"[0-9]", pwd):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
