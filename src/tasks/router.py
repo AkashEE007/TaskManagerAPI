@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from src.tasks import controller
-from src.tasks.dtos import TaskResponseSchema, TaskSchema, DeleteTaskConfirmation
+from src.tasks.dtos import DeleteTaskConfirmation, TaskResponseSchema, TaskSchema
 from src.user.models import UserModel
 from src.utils.db import get_db
 from src.utils.helpers import is_authenticated, require_admin
@@ -11,8 +11,8 @@ task_routes = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 @task_routes.post("/create_task", response_model=TaskResponseSchema, status_code=status.HTTP_201_CREATED)
-def create_task(body:TaskSchema, db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
-    return controller.create_task(body, db, user)
+async def create_task(body:TaskSchema, bg_task: BackgroundTasks, db: Session=Depends(get_db), user: UserModel=Depends(is_authenticated)):
+    return await controller.create_task(body, db, user, bg_task)
 
 
 @task_routes.get("/get_all_tasks", response_model=list[TaskResponseSchema], status_code=status.HTTP_200_OK)
