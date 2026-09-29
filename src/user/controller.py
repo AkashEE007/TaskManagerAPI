@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, status
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 
@@ -14,7 +14,9 @@ from src.user.dtos import (
 from src.user.models import UserModel
 from src.utils.helpers import pagination_params
 from src.utils.logger import logger
+from src.utils.mail import send_email
 from src.utils.settings import settings
+from src.utils.mail import send_email
 
 password_hash = PasswordHash.recommended()
 
@@ -26,7 +28,7 @@ def verify_password(plain_password, hashed_password):
     return password_hash.verify(plain_password, hashed_password)
 
 
-def register(body: UserSchema, db: Session):
+async def register(body: UserSchema, db: Session, bg_task: BackgroundTasks):
     """
         1. Username Validation
         2. Email Validation
@@ -57,6 +59,12 @@ def register(body: UserSchema, db: Session):
         db.refresh(new_user)
 
         logger.info("User created – id=%s, username=%s", new_user.id, new_user.username)
+
+        bg_task.add_task(send_email, 
+                         [new_user.email],
+                         "Welcome to task manager",
+                         f"<p>Hi {new_user.name}, Your account has been created")
+
         return new_user
 
     except Exception as exc:
@@ -65,7 +73,7 @@ def register(body: UserSchema, db: Session):
         raise
 
 
-def login_user(body: LoginSchema, db: Session):
+async def login_user(body: LoginSchema, db: Session, bg_task: BackgroundTasks):
     logger.info("Login attempt – username=%s", body.username)
     is_user = db.query(UserModel).filter(UserModel.username == body.username).one_or_none()
 
@@ -87,6 +95,12 @@ def login_user(body: LoginSchema, db: Session):
         is_user.id,
         exp_local.isoformat()
     )
+
+    bg_task.add_task(send_email, 
+                    [is_user.email],
+                    "Login detected",
+                    f"<p>Hi {is_user.name}, A new login has been detected!")
+    
     return {
         "token": token
     }

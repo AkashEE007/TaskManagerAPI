@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from src.tasks.dtos import DeleteTaskConfirmation, TaskSchema
@@ -6,9 +6,10 @@ from src.tasks.models import TaskModel
 from src.user.models import UserModel
 from src.utils.helpers import pagination_params
 from src.utils.logger import logger
+from src.utils.mail import send_email
 
 
-def create_task(body: TaskSchema, db: Session, user: UserModel):
+async def create_task(body: TaskSchema, db: Session, user: UserModel, bg_task: BackgroundTasks):
     logger.info("Create task request – user_id=%s", user.id)
     try:
         data = body.model_dump()
@@ -21,6 +22,10 @@ def create_task(body: TaskSchema, db: Session, user: UserModel):
         db.refresh(new_task)
 
         logger.info("Task created – id=%s, title=%s", new_task.id, new_task.title)
+        bg_task.add_task(send_email, 
+                        [user.email],
+                        "New Task Created",
+                        f"<p>Hi {user.name},</p> <p>New Task Created: {new_task.title}")
         return new_task
 
     except Exception as exc:
